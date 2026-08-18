@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/familycare_db}
-    username: ${DB_USER:postgres}
-    password: ${DB_PASSWORD:postgres}
+    url: ${DB_URL:jdbc:postgresql://ep-frosty-lab-aywdhpq4-pooler.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require}
+    username: ${DB_USER:neondb_owner}
+    password: ${DB_PASSWORD:npg_lXoOuh7ZJtw6}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:

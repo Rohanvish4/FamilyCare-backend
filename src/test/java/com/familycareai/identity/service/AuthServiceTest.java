@@ -8,6 +8,7 @@ import com.familycareai.identity.dto.request.RegisterRequest;
 import com.familycareai.identity.dto.response.AuthResponse;
 import com.familycareai.identity.dto.response.UserResponse;
 import com.familycareai.identity.entity.*;
+import com.familycareai.identity.event.UserRegisteredEvent;
 import com.familycareai.identity.mapper.UserMapper;
 import com.familycareai.identity.repository.RoleRepository;
 import com.familycareai.identity.repository.UserRepository;
@@ -19,9 +20,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.BadCredentialsException;
 
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
@@ -48,6 +49,8 @@ class AuthServiceTest {
     private TokenService tokenService;
     @Mock
     private AuditLogService auditLogService;
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private AuthService authService;
@@ -91,7 +94,7 @@ class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("Should successfully register a new patient account")
+    @DisplayName("Should successfully register a new patient account and publish UserRegisteredEvent")
     void testRegisterPatientSuccess() {
         when(userRepository.existsByEmail(registerRequest.getEmail())).thenReturn(false);
         when(userRepository.existsByPhoneNumber(registerRequest.getPhoneNumber())).thenReturn(false);
@@ -114,10 +117,11 @@ class AuthServiceTest {
         assertEquals(user.getEmail(), result.getEmail());
         assertEquals(AccountStatus.ACTIVE, result.getAccountStatus());
         verify(userRepository, times(1)).save(any(User.class));
+        verify(eventPublisher, times(1)).publishEvent(any(UserRegisteredEvent.class));
     }
 
     @Test
-    @DisplayName("Should throw exception when registering with duplicate email")
+    @DisplayName("Should throw exception when registering with duplicate email and not publish event")
     void testRegisterDuplicateEmail() {
         when(userRepository.existsByEmail(registerRequest.getEmail())).thenReturn(true);
 
@@ -126,6 +130,7 @@ class AuthServiceTest {
         );
 
         verify(userRepository, never()).save(any(User.class));
+        verify(eventPublisher, never()).publishEvent(any());
     }
 
     @Test

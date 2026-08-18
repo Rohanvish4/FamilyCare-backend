@@ -13,12 +13,14 @@ import com.familycareai.identity.dto.response.AuthResponse;
 import com.familycareai.identity.dto.response.TokenRefreshResponse;
 import com.familycareai.identity.dto.response.UserResponse;
 import com.familycareai.identity.entity.*;
+import com.familycareai.identity.event.UserRegisteredEvent;
 import com.familycareai.identity.mapper.UserMapper;
 import com.familycareai.identity.repository.RoleRepository;
 import com.familycareai.identity.repository.UserRepository;
 import com.familycareai.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +47,7 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final TokenService tokenService;
     private final AuditLogService auditLogService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public UserResponse register(RegisterRequest request, String ipAddress, String userAgent) {
@@ -86,6 +89,14 @@ public class AuthService {
                 AuditStatus.SUCCESS,
                 Map.of("email", savedUser.getEmail(), "role", request.getRole().name(), "status", initialStatus.name())
         );
+
+        // Publish UserRegisteredEvent for asynchronous email dispatch
+        eventPublisher.publishEvent(new UserRegisteredEvent(
+                savedUser.getEmail(),
+                savedUser.getFirstName(),
+                savedUser.getLastName(),
+                request.getRole().name()
+        ));
 
         log.info("Successfully registered user {} with role {} and status {}", savedUser.getEmail(), request.getRole(), initialStatus);
         return userMapper.userToUserResponse(savedUser);

@@ -11,3 +11,4 @@ target/
 docs/
 *.md
 !README.md
+/familycare-web/
