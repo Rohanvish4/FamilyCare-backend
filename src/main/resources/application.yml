@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: familycare-ai-backend
+  profiles:
+    active: dev
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    time-zone: UTC
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+# JWT Configuration
+jwt:
+  secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+  expiration-minutes: ${JWT_EXP_MINUTES:15}
+  refresh-expiration-days: ${JWT_REFRESH_EXP_DAYS:7}
+
+# SpringDoc OpenAPI Documentation
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method

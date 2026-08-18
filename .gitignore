@@ -1,0 +1,13 @@
+target/
+!.mvn/wrapper/maven-wrapper.jar
+*.class
+.idea/
+*.iml
+*.log
+.env
+.DS_Store
+
+# Documentation artifacts
+docs/
+*.md
+!README.md
